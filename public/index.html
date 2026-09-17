@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Razorpay Payment Demo</title>
+  </head>
+
+  <body>
+    <h1>Payment Demo</h1>
+
+    <h2>Test Product</h2>
+
+    <p>Price: ₹999</p>
+
+    <button id="payButton">Pay ₹999</button>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+      document.getElementById("payButton").onclick = async function () {
+        try {
+          const response = await fetch("/create-order", {
+            method: "POST",
+          });
+
+          const order = await response.json();
+
+          if (!response.ok) {
+            throw new Error(order.message || "Failed to create order");
+          }
+
+          const options = {
+            key: "rzp_test_TdBSY74Q5WxU8x",
+
+            amount: order.amount,
+
+            currency: "INR",
+
+            name: "Payment Demo",
+
+            description: "Test Product",
+
+            order_id: order.id,
+
+            handler: function (response) {
+              console.log("Payment ID:", response.razorpay_payment_id);
+
+              console.log("Order ID:", response.razorpay_order_id);
+
+              console.log("Signature:", response.razorpay_signature);
+
+              alert("Payment successful!");
+            },
+
+            theme: {
+              color: "#3399cc",
+            },
+          };
+
+          const razorpay = new Razorpay(options);
+
+          razorpay.open();
+        } catch (error) {
+          console.error(error);
+
+          alert("Something went wrong: " + error.message);
+        }
+      };
+    </script>
+  </body>
+</html>
